@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trend Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f7f9; --panel: #ffffff; --ink: #121417; --ink-2: #4a5160; --ink-3: #7b8292;
+  --line: #e2e5eb; --line-2: #eef0f4; --accent: #2a78d6; --accent-soft: #e6effb;
+  --up: #1baf7a; --down: #e34948;
+  --pill-bull: #e3f5ec; --pill-bear: #fbe7e7; --live: #1baf7a;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121417; --panel: #1a1d22; --ink: #f2f3f5; --ink-2: #b7bdc9; --ink-3: #8a91a0;
+  --line: #2b3038; --line-2: #22262d; --accent: #3987e5; --accent-soft: #1d2a3b;
+  --up: #199e70; --down: #e66767; --pill-bull: #173329; --pill-bear: #3a1d1e; --live: #2bc48c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #121417; --panel: #1a1d22; --ink: #f2f3f5; --ink-2: #b7bdc9; --ink-3: #8a91a0;
+  --line: #2b3038; --line-2: #22262d; --accent: #3987e5; --accent-soft: #1d2a3b;
+  --up: #199e70; --down: #e66767; --pill-bull: #173329; --pill-bear: #3a1d1e; --live: #2bc48c; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+.wrap { max-width: 1100px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; display: grid; gap: 22px; }
+h1 { font: 700 clamp(26px, 4vw, 36px)/1.1 var(--f-display); margin: 0; letter-spacing: -0.01em; }
+.sub { color: var(--ink-2); margin: 8px 0 0; max-width: 70ch; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.livebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 13px; color: var(--ink-2); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); display: inline-block; margin-right: 6px; }
+.dot.on { background: var(--live); box-shadow: 0 0 0 3px color-mix(in srgb, var(--live) 25%, transparent); }
+.dot.err { background: var(--down); }
+
+.btcbar { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.btcpill { font: 600 14px/1 var(--f-mono); padding: 8px 14px; border-radius: 999px; }
+.btcpill.bull { background: var(--pill-bull); color: var(--up); }
+.btcpill.bear { background: var(--pill-bear); color: var(--down); }
+.btcbar p { margin: 0; color: var(--ink-2); font-size: 13px; max-width: 60ch; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+th { color: var(--ink-3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; position: sticky; top: 0; background: var(--panel); }
+tbody tr:hover { background: var(--line-2); }
+tr.fire td { background: var(--accent-soft); }
+.yes { color: var(--up); font-weight: 600; }
+.no { color: var(--ink-3); }
+.tablebox { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: auto; max-height: 72vh; }
+footer { color: var(--ink-3); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <h1>Trend Bot</h1>
+    <p class="sub">Live Ichimoku (ICHI) + refined-EMA (GEM) signal status, top-200 Bitget spot coins by volume (RWA/tokenized-stock products and stablecoins excluded). Computed in your browser from live 4H candles -- current whenever this page is open. No BTC filter gates these signals (removed 2026-10-19, validated: +75% final equity in backtest); the BTC panel below is informational market context only.</p>
+  </div>
+
+  <div class="livebar">
+    <span><span id="dot" class="dot"></span><span id="status">loading…</span></span>
+    <span id="progress"></span>
+  </div>
+
+  <div class="btcbar">
+    <span id="btcpill" class="btcpill">BTC filter: –</span>
+    <p>EMA20 &gt; EMA50 and close &gt; EMA50 on BTC's own 4H chart -- the exact condition that used to gate GEM entries before the filter was removed. Shown here as a bull/bear market read, not an active trading gate.</p>
+  </div>
+
+  <div class="tablebox">
+    <table>
+      <thead><tr>
+        <th>Coin</th><th>Close</th><th>EMA20&gt;50</th><th>Above Kijun</th><th>ICHI signal</th><th>GEM signal</th><th>24h vol</th>
+      </tr></thead>
+      <tbody id="rows"><tr><td colspan="7">loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <footer>Not a buy/sell signal by itself -- matches trend-bot's own entry logic (<a href="https://github.com/ravianaf/trend-bot">ravianaf/trend-bot</a>), shown for visibility only. Paper trading.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var API = "https://api.bitget.com/api/v2/spot";
+  var N_COINS = 200;
+  var GRAN = "4h";
+  var STABLES = ["USDT", "USDC", "DAI", "TUSD", "FDUSD", "USDE", "PYUSD", "USD1", "USDD", "BUSD"];
+
+  /* ---------- network (same pattern as the Breakout Map page) ---------- */
+  function getJSON(url, tries) {
+    tries = tries || 4;
+    return fetch(url).then(function (r) {
+      if (r.status === 429 || r.status >= 500) throw new Error("http " + r.status);
+      return r.json();
+    }).catch(function (e) {
+      if (tries <= 1) throw e;
+      return new Promise(function (res) { setTimeout(res, 900 * (5 - tries)); }).then(function () { return getJSON(url, tries - 1); });
+    });
+  }
+  function pool(items, n, fn, onDone) {
+    var i = 0, done = 0;
+    return new Promise(function (resolve) {
+      if (!items.length) return resolve();
+      function next() {
+        if (i >= items.length) return;
+        var it = items[i++];
+        Promise.resolve().then(function () { return fn(it); }).catch(function () {}).then(function () {
+          done++; onDone && onDone(done, items.length);
+          if (done === items.length) resolve(); else next();
+        });
+      }
+      for (var k = 0; k < Math.min(n, items.length); k++) next();
+    });
+  }
+
+  function loadTopCoins() {
+    var sym = getJSON(API + "/public/symbols").then(function (j) {
+      return (j.data || []).filter(function (s) {
+        return s.quoteCoin === "USDT" && s.status === "online" && s.areaSymbol !== "yes" && STABLES.indexOf(String(s.baseCoin).toUpperCase()) < 0;
+      }).map(function (s) { return String(s.baseCoin).toUpperCase(); });
+    });
+    var tick = getJSON(API + "/market/tickers").then(function (j) {
+      var m = {}; (j.data || []).forEach(function (t) { if (/USDT$/.test(t.symbol)) m[t.symbol.slice(0, -4)] = +t.usdtVolume || 0; });
+      return m;
+    });
+    return Promise.all([sym, tick]).then(function (r) {
+      var allowed = r[0], vol = r[1];
+      var coins = allowed.filter(function (c) { return vol[c] != null; })
+        .sort(function (a, b) { return vol[b] - vol[a]; })
+        .slice(0, N_COINS);
+      return { coins: coins, vol: vol };
+    });
+  }
+
+  function parseCandles(arr) {
+    return (arr || []).map(function (k) { return { t: +k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4] }; })
+      .sort(function (a, b) { return a.t - b.t; });
+  }
+  function loadCandles(coin) {
+    return getJSON(API + "/market/candles?symbol=" + coin + "USDT&granularity=" + GRAN + "&limit=400").then(function (j) {
+      var k = parseCandles(j.data);
+      return k.slice(0, -1);   // drop the forming candle
+    });
+  }
+
+  /* ---------- engine: same formulas as trend_bot.py / gemini_refined.py ---------- */
+  function ema(vals, span) {
+    var k = 2 / (span + 1), out = new Array(vals.length), prev = vals[0];
+    for (var i = 0; i < vals.length; i++) { prev = i === 0 ? vals[0] : vals[i] * k + prev * (1 - k); out[i] = prev; }
+    return out;
+  }
+  function rollMax(vals, w) { return vals.map(function (_, i) { return i + 1 < w ? NaN : Math.max.apply(null, vals.slice(i - w + 1, i + 1)); }); }
+  function rollMin(vals, w) { return vals.map(function (_, i) { return i + 1 < w ? NaN : Math.min.apply(null, vals.slice(i - w + 1, i + 1)); }); }
+
+  function analyze(candles) {
+    var n = candles.length;
+    if (n < 260) return null;
+    var c = candles.map(function (x) { return x.c; }), h = candles.map(function (x) { return x.h; }), l = candles.map(function (x) { return x.l; });
+    var e20 = ema(c, 20), e50 = ema(c, 50);
+    var ten = rollMax(h, 10).map(function (v, i) { return (v + rollMin(l, 10)[i]) / 2; });
+    var kij = rollMax(h, 30).map(function (v, i) { return (v + rollMin(l, 30)[i]) / 2; });
+    var senkouA = [], senkouB = [], kij60 = rollMax(h, 60).map(function (v, i) { return (v + rollMin(l, 60)[i]) / 2; });
+    for (var i = 0; i < n; i++) {
+      senkouA[i] = i - 30 >= 0 ? (ten[i - 30] + kij[i - 30]) / 2 : NaN;
+      senkouB[i] = i - 30 >= 0 ? kij60[i - 30] : NaN;
+    }
+    var t = n - 1, pt = n - 2;
+    var cloudTop = Math.max(senkouA[t], senkouB[t]);
+    var sigICHI = ten[t] > kij[t] && ten[pt] <= kij[pt] && c[t] > cloudTop;
+    var aboveKijun = c[t] > kij[t];
+    var e20gt50 = e20[t] > e50[t];
+    var cross = e20[t] > e50[t] && e20[pt] <= e50[pt];
+    var pull = e20[t] > e50[t] && c[t] > e20[t] && c[pt] <= e20[pt];
+    var sigGEM = cross || pull;
+    return { close: c[t], e20gt50: e20gt50, aboveKijun: aboveKijun, sigICHI: sigICHI, sigGEM: sigGEM,
+             btcOk: e20[t] > e50[t] && c[t] > e50[t], vol: 0 };
+  }
+
+  /* ---------- render ---------- */
+  var $status = document.getElementById("status"), $dot = document.getElementById("dot"), $progress = document.getElementById("progress");
+  var $rows = document.getElementById("rows"), $btcpill = document.getElementById("btcpill");
+
+  function fmtPrice(x) {
+    if (!isFinite(x)) return "–";
+    var d = x >= 100 ? 2 : x >= 1 ? 4 : 6;
+    return x.toFixed(d);
+  }
+  function fmtVol(x) {
+    if (x >= 1e9) return (x / 1e9).toFixed(2) + "B";
+    if (x >= 1e6) return (x / 1e6).toFixed(1) + "M";
+    if (x >= 1e3) return (x / 1e3).toFixed(0) + "K";
+    return String(Math.round(x));
+  }
+  function yesno(b) { return b ? '<span class="yes">yes</span>' : '<span class="no">–</span>'; }
+
+  function run() {
+    $status.textContent = "fetching coin universe…"; $dot.className = "dot";
+    loadTopCoins().then(function (u) {
+      var coins = u.coins, volMap = u.vol;
+      $status.textContent = "fetching " + coins.length + " coins' 4H candles…";
+      var results = {}, done = 0;
+      return pool(coins, 6, function (coin) {
+        return loadCandles(coin).then(function (k) {
+          var a = analyze(k);
+          if (a) { a.vol = volMap[coin] || 0; results[coin] = a; }
+        });
+      }, function (d, total) {
+        done = d;
+        $progress.textContent = d + " / " + total;
+      }).then(function () { return results; });
+    }).then(function (results) {
+      renderBtc(results.BTC);
+      renderTable(results);
+      $dot.className = "dot on";
+      $status.textContent = "live -- updated " + new Date().toLocaleTimeString();
+      $progress.textContent = "";
+    }).catch(function (e) {
+      $dot.className = "dot err"; $status.textContent = "error: " + e.message;
+    });
+  }
+
+  function renderBtc(btc) {
+    if (!btc) { $btcpill.textContent = "BTC filter: unknown"; return; }
+    if (btc.btcOk) { $btcpill.className = "btcpill bull"; $btcpill.textContent = "🟢 BTC filter: ON (bull market)"; }
+    else { $btcpill.className = "btcpill bear"; $btcpill.textContent = "🔴 BTC filter: OFF (not confirmed bullish)"; }
+  }
+
+  function renderTable(results) {
+    var coins = Object.keys(results).sort(function (a, b) {
+      var A = results[a], B = results[b];
+      var fa = (A.sigICHI || A.sigGEM) ? 1 : 0, fb = (B.sigICHI || B.sigGEM) ? 1 : 0;
+      if (fa !== fb) return fb - fa;
+      return B.vol - A.vol;
+    });
+    if (!coins.length) { $rows.innerHTML = "<tr><td colspan='7'>no data</td></tr>"; return; }
+    var html = coins.map(function (coin) {
+      var r = results[coin];
+      var firing = r.sigICHI || r.sigGEM;
+      return "<tr" + (firing ? ' class="fire"' : "") + "><td>#" + coin + "</td><td class='mono'>" + fmtPrice(r.close) +
+        "</td><td>" + yesno(r.e20gt50) + "</td><td>" + yesno(r.aboveKijun) + "</td><td>" + yesno(r.sigICHI) +
+        "</td><td>" + yesno(r.sigGEM) + "</td><td class='mono'>" + fmtVol(r.vol || 0) + "</td></tr>";
+    }).join("");
+    $rows.innerHTML = html;
+  }
+
+  run();
+  setInterval(run, 5 * 60 * 1000);
+})();
+</script>
+</body>
+</html>
