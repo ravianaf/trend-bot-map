@@ -29,57 +29,148 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
-.wrap { max-width: 1100px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; display: grid; gap: 22px; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; display: grid; gap: 22px; }
 h1 { font: 700 clamp(26px, 4vw, 36px)/1.1 var(--f-display); margin: 0; letter-spacing: -0.01em; }
-.sub { color: var(--ink-2); margin: 8px 0 0; max-width: 70ch; }
+h2 { font: 700 20px/1.2 var(--f-display); margin: 0 0 10px; letter-spacing: -0.01em; }
+.sub { color: var(--ink-2); margin: 8px 0 0; max-width: 72ch; }
 .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
 
 .livebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 13px; color: var(--ink-2); }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); display: inline-block; margin-right: 6px; }
 .dot.on { background: var(--live); box-shadow: 0 0 0 3px color-mix(in srgb, var(--live) 25%, transparent); }
 .dot.err { background: var(--down); }
+button.refresh { margin-left: auto; font: 600 12px var(--f-body); color: var(--accent); background: var(--accent-soft); border: none; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+button.refresh:hover { filter: brightness(0.96); }
 
-.btcbar { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.btcpill { font: 600 14px/1 var(--f-mono); padding: 8px 14px; border-radius: 999px; }
+.btcbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.btcpill { font: 600 14px/1 var(--f-mono); padding: 8px 14px; border-radius: 999px; white-space: nowrap; }
 .btcpill.bull { background: var(--pill-bull); color: var(--up); }
 .btcpill.bear { background: var(--pill-bear); color: var(--down); }
 .btcbar p { margin: 0; color: var(--ink-2); font-size: 13px; max-width: 60ch; }
 
+.guide ol, .guide ul { margin: 8px 0 0; padding-left: 22px; }
+.guide li { margin-bottom: 6px; color: var(--ink-2); }
+.guide b { color: var(--ink); }
+.guide .note { margin-top: 10px; font-size: 12.5px; color: var(--ink-3); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.tile { background: var(--line-2); border-radius: 8px; padding: 12px 14px; }
+.tile .k { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-3); }
+.tile .v { font: 700 22px var(--f-display); margin-top: 4px; }
+.tile .v.up { color: var(--up); } .tile .v.down { color: var(--down); }
+.tile .e { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+
+.counts { font-size: 13px; color: var(--ink-2); }
+.counts b { color: var(--ink); }
+
+.controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.controls input[type=search], .controls select { font: 13px var(--f-body); padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--ink); }
+.controls input[type=search] { flex: 1 1 160px; min-width: 140px; }
+
 table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
-th { color: var(--ink-3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; position: sticky; top: 0; background: var(--panel); }
+th { color: var(--ink-3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; position: sticky; top: 0; background: var(--panel); cursor: pointer; user-select: none; }
+th.sorted { color: var(--accent); }
 tbody tr:hover { background: var(--line-2); }
 tr.fire td { background: var(--accent-soft); }
 .yes { color: var(--up); font-weight: 600; }
 .no { color: var(--ink-3); }
+.warn { color: var(--down); font-weight: 600; }
 .tablebox { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: auto; max-height: 72vh; }
+.tablebox .controls { padding: 12px 14px 0; }
+.tablebox table { margin-top: 2px; }
+a.chartlink { color: var(--accent); text-decoration: none; font-size: 12px; }
+a.chartlink:hover { text-decoration: underline; }
+
+.calc { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items: end; }
+.calc label { display: block; font-size: 12px; color: var(--ink-3); margin-bottom: 4px; }
+.calc input, .calc select { width: 100%; font: 14px var(--f-mono); padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--ink); }
+.calc-out { grid-column: 1 / -1; background: var(--line-2); border-radius: 8px; padding: 12px 14px; font-size: 13.5px; }
+.calc-out div { display: flex; justify-content: space-between; padding: 3px 0; }
+.calc-out .lbl { color: var(--ink-3); }
+
 footer { color: var(--ink-3); font-size: 12px; }
+footer a { color: var(--ink-2); }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div>
     <h1>Trend Bot</h1>
-    <p class="sub">Live Ichimoku (ICHI) + refined-EMA (GEM) signal status, top-200 Bitget spot coins by volume (RWA/tokenized-stock products and stablecoins excluded). Computed in your browser from live 4H candles -- current whenever this page is open. No BTC filter gates these signals (removed 2026-10-19, validated: +75% final equity in backtest); the BTC panel below is informational market context only.</p>
+    <p class="sub">Live Ichimoku (ICHI) + refined-EMA (GEM) signal status, top-200 Bitget spot coins by 24h volume (RWA/tokenized-stock products and stablecoins excluded). Computed in your browser from live 4H candles -- current whenever this page is open. Both engines require BTC's own 4H trend to be up (EMA20&gt;EMA50 and close&gt;EMA50) to signal, and skip any coin whose ATR(14) is over 4% of price (too volatile for the fixed-ATR stop) -- see the guide below for why.</p>
   </div>
 
   <div class="livebar">
     <span><span id="dot" class="dot"></span><span id="status">loading…</span></span>
     <span id="progress"></span>
+    <button class="refresh" id="refresh" type="button" title="Reconnects and re-reads all data now, instead of waiting for the 5-minute auto-refresh.">Refresh</button>
   </div>
 
-  <div class="btcbar">
+  <div class="card btcbar">
     <span id="btcpill" class="btcpill">BTC filter: –</span>
-    <p>EMA20 &gt; EMA50 and close &gt; EMA50 on BTC's own 4H chart -- the exact condition that used to gate GEM entries before the filter was removed. Shown here as a bull/bear market read, not an active trading gate.</p>
+    <p>EMA20 &gt; EMA50 and close &gt; EMA50 on BTC's own 4H chart. This is an <b>active entry gate</b> on both engines (restored 2026-11-02 after a 342-coin backtest: without it, the live universe backtests to +205%/-39% dev/OOS with a -55% drawdown; with it, +226%/+120% with -32% drawdown) -- while it reads red, no new ICHI or GEM signal below can actually open a trade.</p>
   </div>
+
+  <div class="card guide">
+    <h2>How this bot trades</h2>
+    <ol>
+      <li><b>ICHI (Ichimoku 10/30/60):</b> Tenkan crosses above Kijun with price closing above the cloud. Stop 2.5&times;ATR(14). Exit on a 4H close back below Kijun.</li>
+      <li><b>GEM (refined EMA):</b> EMA20 crosses above EMA50, or price reclaims EMA20 while EMA20&gt;EMA50. Stop 2&times;ATR(14). Exit when EMA20 crosses back below EMA50.</li>
+      <li>Both engines only fire while <b>BTC's own 4H trend is up</b> (panel above), and skip any coin whose <b>ATR(14) is over 4% of price</b> -- too noisy for the fixed stop distance to mean anything.</li>
+      <li>Position sizing: ICHI risks 0.5% of paper equity per trade, GEM risks 0.25%; max 5 open positions per engine; after 8 straight losses in an engine, it trades at half risk until its next win.</li>
+    </ol>
+    <p class="note">Paper trading only. This page shows the same signal logic the bot runs on <a href="https://github.com/ravianaf/trend-bot">GitHub</a>, computed live in your browser -- it is not a buy/sell recommendation by itself.</p>
+  </div>
+
+  <div class="card">
+    <h2>Backtest track record</h2>
+    <div class="tiles">
+      <div class="tile"><div class="k">Dev period (2020-11 → 2024-04)</div><div class="v up">+226%</div><div class="e">with BTC filter, 200-coin universe</div></div>
+      <div class="tile"><div class="k">Out-of-sample (2024-04 → 2026-10)</div><div class="v up">+120%</div><div class="e">+134% with the ATR cap added too</div></div>
+      <div class="tile"><div class="k">Max drawdown</div><div class="v down">-24%</div><div class="e">with both filters; -55% without the BTC filter</div></div>
+      <div class="tile"><div class="k">Live, pre-fix (BTC filter off)</div><div class="v down">49 / 53</div><div class="e">trades opened with BTC red, -24.5R combined</div></div>
+    </div>
+    <p class="note">From the bot's own joint-portfolio backtests (see <a href="https://github.com/ravianaf/trend-bot">repo</a> for scripts). A backtest is not a guarantee of future results.</p>
+  </div>
+
+  <div class="counts" id="counts">Scanning universe…</div>
 
   <div class="tablebox">
+    <div class="controls">
+      <input id="q" type="search" placeholder="Search coin, e.g. SOL" autocomplete="off" aria-label="Search coins">
+      <select id="ffilter" aria-label="Filter">
+        <option value="">All coins</option>
+        <option value="fire">Signal firing now (either engine)</option>
+        <option value="ichi">ICHI signal now</option>
+        <option value="gem">GEM signal now</option>
+        <option value="atrskip">ATR-skipped (&gt;4%)</option>
+      </select>
+      <select id="fsort" aria-label="Sort">
+        <option value="default">Default (signal first, then volume)</option>
+        <option value="vol">Highest 24h volume</option>
+        <option value="atr">Lowest ATR%</option>
+        <option value="az">A to Z</option>
+      </select>
+    </div>
     <table>
       <thead><tr>
-        <th>Coin</th><th>Close</th><th>EMA20&gt;50</th><th>Above Kijun</th><th>ICHI signal</th><th>GEM signal</th><th>24h vol</th>
+        <th>Coin</th><th>Close</th><th>ATR%</th><th>EMA20&gt;50</th><th>Above Kijun</th><th>ICHI signal</th><th>GEM signal</th><th>24h vol</th><th>Chart</th>
       </tr></thead>
-      <tbody id="rows"><tr><td colspan="7">loading…</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="9">loading…</td></tr></tbody>
     </table>
+  </div>
+
+  <div class="card">
+    <h2>Position-size calculator</h2>
+    <p class="sub" style="margin-top:0">Same formula the bot itself uses (<code class="mono">risk$ = equity &times; risk% ; qty = risk$ / (stop_atr &times; ATR)</code>). Pick a coin with live data above.</p>
+    <div class="calc">
+      <div><label for="calc-coin">Coin</label><select id="calc-coin"><option value="">loading…</option></select></div>
+      <div><label for="calc-engine">Engine</label><select id="calc-engine"><option value="ICHI">ICHI (0.5% risk, 2.5&times;ATR stop)</option><option value="GEM">GEM (0.25% risk, 2.0&times;ATR stop)</option></select></div>
+      <div><label for="calc-equity">Account (USDT)</label><input id="calc-equity" type="number" min="1" step="1" value="1000"></div>
+      <div><label for="calc-risk">Override risk % (optional)</label><input id="calc-risk" type="number" min="0" step="0.01" placeholder="engine default"></div>
+      <div class="calc-out" id="calc-out">Pick a coin to see the sizing.</div>
+    </div>
   </div>
 
   <footer>Not a buy/sell signal by itself -- matches trend-bot's own entry logic (<a href="https://github.com/ravianaf/trend-bot">ravianaf/trend-bot</a>), shown for visibility only. Paper trading.</footer>
@@ -92,6 +183,8 @@ footer { color: var(--ink-3); font-size: 12px; }
   var N_COINS = 200;
   var GRAN = "4h";
   var STABLES = ["USDT", "USDC", "DAI", "TUSD", "FDUSD", "USDE", "PYUSD", "USD1", "USDD", "BUSD"];
+  var ENGINES = { ICHI: { risk: 0.5, stopAtr: 2.5 }, GEM: { risk: 0.25, stopAtr: 2.0 } };
+  var MAX_ATR_PCT = 4.0;
 
   /* ---------- network (same pattern as the Breakout Map page) ---------- */
   function getJSON(url, tries) {
@@ -135,6 +228,7 @@ footer { color: var(--ink-3); font-size: 12px; }
       var coins = allowed.filter(function (c) { return vol[c] != null; })
         .sort(function (a, b) { return vol[b] - vol[a]; })
         .slice(0, N_COINS);
+      if (coins.indexOf("BTC") < 0) coins.unshift("BTC");
       return { coins: coins, vol: vol };
     });
   }
@@ -156,36 +250,58 @@ footer { color: var(--ink-3); font-size: 12px; }
     for (var i = 0; i < vals.length; i++) { prev = i === 0 ? vals[0] : vals[i] * k + prev * (1 - k); out[i] = prev; }
     return out;
   }
+  function wilder(vals, p) {
+    var k = 1 / p, out = new Array(vals.length), prev = vals[0];
+    for (var i = 0; i < vals.length; i++) { prev = i === 0 ? vals[0] : vals[i] * k + prev * (1 - k); out[i] = prev; }
+    return out;
+  }
+  function atr14(h, l, c) {
+    var tr = new Array(h.length);
+    for (var i = 0; i < h.length; i++) tr[i] = i === 0 ? h[i] - l[i] : Math.max(h[i] - l[i], Math.abs(h[i] - c[i - 1]), Math.abs(l[i] - c[i - 1]));
+    return wilder(tr, 14);
+  }
   function rollMax(vals, w) { return vals.map(function (_, i) { return i + 1 < w ? NaN : Math.max.apply(null, vals.slice(i - w + 1, i + 1)); }); }
   function rollMin(vals, w) { return vals.map(function (_, i) { return i + 1 < w ? NaN : Math.min.apply(null, vals.slice(i - w + 1, i + 1)); }); }
 
-  function analyze(candles) {
+  function analyze(candles, btcOk) {
     var n = candles.length;
     if (n < 260) return null;
     var c = candles.map(function (x) { return x.c; }), h = candles.map(function (x) { return x.h; }), l = candles.map(function (x) { return x.l; });
-    var e20 = ema(c, 20), e50 = ema(c, 50);
+    var e20 = ema(c, 20), e50 = ema(c, 50), atr = atr14(h, l, c);
     var ten = rollMax(h, 10).map(function (v, i) { return (v + rollMin(l, 10)[i]) / 2; });
     var kij = rollMax(h, 30).map(function (v, i) { return (v + rollMin(l, 30)[i]) / 2; });
-    var senkouA = [], senkouB = [], kij60 = rollMax(h, 60).map(function (v, i) { return (v + rollMin(l, 60)[i]) / 2; });
+    var kij60 = rollMax(h, 60).map(function (v, i) { return (v + rollMin(l, 60)[i]) / 2; });
+    var senkouA = [], senkouB = [];
     for (var i = 0; i < n; i++) {
       senkouA[i] = i - 30 >= 0 ? (ten[i - 30] + kij[i - 30]) / 2 : NaN;
       senkouB[i] = i - 30 >= 0 ? kij60[i - 30] : NaN;
     }
     var t = n - 1, pt = n - 2;
     var cloudTop = Math.max(senkouA[t], senkouB[t]);
-    var sigICHI = ten[t] > kij[t] && ten[pt] <= kij[pt] && c[t] > cloudTop;
-    var aboveKijun = c[t] > kij[t];
+    var ownBtcOk = e20[t] > e50[t] && c[t] > e50[t];
+    var gateOk = btcOk == null ? ownBtcOk : btcOk;   // BTC's own row gates itself
+    var atrPct = atr[t] / c[t] * 100;
+    var atrOk = atrPct <= MAX_ATR_PCT;
+    var rawICHI = ten[t] > kij[t] && ten[pt] <= kij[pt] && c[t] > cloudTop;
     var e20gt50 = e20[t] > e50[t];
     var cross = e20[t] > e50[t] && e20[pt] <= e50[pt];
     var pull = e20[t] > e50[t] && c[t] > e20[t] && c[pt] <= e20[pt];
-    var sigGEM = cross || pull;
-    return { close: c[t], e20gt50: e20gt50, aboveKijun: aboveKijun, sigICHI: sigICHI, sigGEM: sigGEM,
-             btcOk: e20[t] > e50[t] && c[t] > e50[t], vol: 0 };
+    var rawGEM = cross || pull;
+    return {
+      close: c[t], atr: atr[t], atrPct: atrPct, atrOk: atrOk,
+      e20gt50: e20gt50, aboveKijun: c[t] > kij[t],
+      sigICHI: rawICHI && gateOk && atrOk, sigGEM: rawGEM && gateOk && atrOk,
+      btcOk: ownBtcOk, vol: 0
+    };
   }
 
   /* ---------- render ---------- */
   var $status = document.getElementById("status"), $dot = document.getElementById("dot"), $progress = document.getElementById("progress");
-  var $rows = document.getElementById("rows"), $btcpill = document.getElementById("btcpill");
+  var $rows = document.getElementById("rows"), $btcpill = document.getElementById("btcpill"), $counts = document.getElementById("counts");
+  var $q = document.getElementById("q"), $ffilter = document.getElementById("ffilter"), $fsort = document.getElementById("fsort");
+  var $calcCoin = document.getElementById("calc-coin"), $calcEngine = document.getElementById("calc-engine");
+  var $calcEquity = document.getElementById("calc-equity"), $calcRisk = document.getElementById("calc-risk"), $calcOut = document.getElementById("calc-out");
+  var LAST = {};
 
   function fmtPrice(x) {
     if (!isFinite(x)) return "–";
@@ -205,19 +321,27 @@ footer { color: var(--ink-3); font-size: 12px; }
     loadTopCoins().then(function (u) {
       var coins = u.coins, volMap = u.vol;
       $status.textContent = "fetching " + coins.length + " coins' 4H candles…";
-      var results = {}, done = 0;
+      var raw = {};
       return pool(coins, 6, function (coin) {
-        return loadCandles(coin).then(function (k) {
-          var a = analyze(k);
-          if (a) { a.vol = volMap[coin] || 0; results[coin] = a; }
+        return loadCandles(coin).then(function (k) { raw[coin] = k; });
+      }, function (d, total) { $progress.textContent = d + " / " + total; })
+        .then(function () {
+          var btcA = raw.BTC ? analyze(raw.BTC, null) : null;
+          var btcOk = btcA ? btcA.btcOk : null;
+          var results = {};
+          coins.forEach(function (coin) {
+            if (!raw[coin]) return;
+            var a = analyze(raw[coin], coin === "BTC" ? null : btcOk);
+            if (a) { a.vol = volMap[coin] || 0; results[coin] = a; }
+          });
+          return results;
         });
-      }, function (d, total) {
-        done = d;
-        $progress.textContent = d + " / " + total;
-      }).then(function () { return results; });
     }).then(function (results) {
+      LAST = results;
       renderBtc(results.BTC);
-      renderTable(results);
+      renderCounts(results);
+      renderTable();
+      fillCalcCoins();
       $dot.className = "dot on";
       $status.textContent = "live -- updated " + new Date().toLocaleTimeString();
       $progress.textContent = "";
@@ -228,27 +352,91 @@ footer { color: var(--ink-3); font-size: 12px; }
 
   function renderBtc(btc) {
     if (!btc) { $btcpill.textContent = "BTC filter: unknown"; return; }
-    if (btc.btcOk) { $btcpill.className = "btcpill bull"; $btcpill.textContent = "🟢 BTC filter: ON (bull market)"; }
-    else { $btcpill.className = "btcpill bear"; $btcpill.textContent = "🔴 BTC filter: OFF (not confirmed bullish)"; }
+    if (btc.btcOk) { $btcpill.className = "btcpill bull"; $btcpill.textContent = "🟢 BTC filter: ON (bull market) -- new entries allowed"; }
+    else { $btcpill.className = "btcpill bear"; $btcpill.textContent = "🔴 BTC filter: OFF -- no new entries on either engine right now"; }
   }
 
-  function renderTable(results) {
-    var coins = Object.keys(results).sort(function (a, b) {
+  function renderCounts(results) {
+    var coins = Object.keys(results);
+    var nIchi = coins.filter(function (c) { return results[c].sigICHI; }).length;
+    var nGem = coins.filter(function (c) { return results[c].sigGEM; }).length;
+    var nSkip = coins.filter(function (c) { return !results[c].atrOk; }).length;
+    $counts.innerHTML = "<b>" + coins.length + "</b> coins scanned &middot; <b>" + nIchi + "</b> ICHI signal now &middot; <b>" +
+      nGem + "</b> GEM signal now &middot; <b>" + nSkip + "</b> ATR-skipped (&gt;4%)";
+  }
+
+  function renderTable() {
+    var results = LAST;
+    var q = ($q.value || "").trim().toUpperCase();
+    var filter = $ffilter.value;
+    var sort = $fsort.value;
+    var coins = Object.keys(results).filter(function (c) {
+      if (q && c.indexOf(q) < 0) return false;
+      var r = results[c];
+      if (filter === "fire" && !(r.sigICHI || r.sigGEM)) return false;
+      if (filter === "ichi" && !r.sigICHI) return false;
+      if (filter === "gem" && !r.sigGEM) return false;
+      if (filter === "atrskip" && r.atrOk) return false;
+      return true;
+    });
+    coins.sort(function (a, b) {
       var A = results[a], B = results[b];
+      if (sort === "vol") return B.vol - A.vol;
+      if (sort === "atr") return A.atrPct - B.atrPct;
+      if (sort === "az") return a < b ? -1 : a > b ? 1 : 0;
       var fa = (A.sigICHI || A.sigGEM) ? 1 : 0, fb = (B.sigICHI || B.sigGEM) ? 1 : 0;
       if (fa !== fb) return fb - fa;
       return B.vol - A.vol;
     });
-    if (!coins.length) { $rows.innerHTML = "<tr><td colspan='7'>no data</td></tr>"; return; }
+    if (!coins.length) { $rows.innerHTML = "<tr><td colspan='9'>no coins match</td></tr>"; return; }
     var html = coins.map(function (coin) {
       var r = results[coin];
       var firing = r.sigICHI || r.sigGEM;
+      var atrCell = (r.atrOk ? r.atrPct.toFixed(1) : '<span class="warn">' + r.atrPct.toFixed(1) + " ⚠</span>");
       return "<tr" + (firing ? ' class="fire"' : "") + "><td>#" + coin + "</td><td class='mono'>" + fmtPrice(r.close) +
-        "</td><td>" + yesno(r.e20gt50) + "</td><td>" + yesno(r.aboveKijun) + "</td><td>" + yesno(r.sigICHI) +
-        "</td><td>" + yesno(r.sigGEM) + "</td><td class='mono'>" + fmtVol(r.vol || 0) + "</td></tr>";
+        "</td><td class='mono'>" + atrCell + "</td><td>" + yesno(r.e20gt50) + "</td><td>" + yesno(r.aboveKijun) + "</td><td>" + yesno(r.sigICHI) +
+        "</td><td>" + yesno(r.sigGEM) + "</td><td class='mono'>" + fmtVol(r.vol || 0) +
+        "</td><td><a class='chartlink' target='_blank' rel='noopener' href='https://www.tradingview.com/chart/?symbol=" + coin + "USDT'>view →</a></td></tr>";
     }).join("");
     $rows.innerHTML = html;
   }
+
+  function fillCalcCoins() {
+    var cur = $calcCoin.value;
+    var coins = Object.keys(LAST).sort();
+    $calcCoin.innerHTML = coins.map(function (c) { return "<option value='" + c + "'>#" + c + "</option>"; }).join("");
+    if (coins.indexOf(cur) >= 0) $calcCoin.value = cur;
+    renderCalc();
+  }
+
+  function renderCalc() {
+    var coin = $calcCoin.value, r = LAST[coin];
+    if (!r) { $calcOut.textContent = "Pick a coin to see the sizing."; return; }
+    var eng = ENGINES[$calcEngine.value];
+    var equity = parseFloat($calcEquity.value) || 0;
+    var riskPct = parseFloat($calcRisk.value);
+    if (!isFinite(riskPct) || riskPct <= 0) riskPct = eng.risk;
+    var riskDist = eng.stopAtr * r.atr;
+    var stopPx = r.close - riskDist;
+    var riskUsd = equity * riskPct / 100;
+    var qty = riskDist > 0 ? riskUsd / riskDist : 0;
+    var notional = qty * r.close;
+    $calcOut.innerHTML =
+      '<div><span class="lbl">Entry (current price)</span><span class="mono">' + fmtPrice(r.close) + '</span></div>' +
+      '<div><span class="lbl">Stop (' + eng.stopAtr + '&times;ATR)</span><span class="mono">' + fmtPrice(stopPx) + ' (' + ((stopPx / r.close - 1) * 100).toFixed(1) + '%)</span></div>' +
+      '<div><span class="lbl">Risk $ (' + riskPct.toFixed(2) + '% of account)</span><span class="mono">$' + riskUsd.toFixed(2) + '</span></div>' +
+      '<div><span class="lbl">Quantity</span><span class="mono">' + qty.toPrecision(4) + '</span></div>' +
+      '<div><span class="lbl">Notional</span><span class="mono">$' + notional.toFixed(2) + '</span></div>';
+  }
+
+  document.getElementById("refresh").addEventListener("click", run);
+  $q.addEventListener("input", renderTable);
+  $ffilter.addEventListener("change", renderTable);
+  $fsort.addEventListener("change", renderTable);
+  $calcCoin.addEventListener("change", renderCalc);
+  $calcEngine.addEventListener("change", renderCalc);
+  $calcEquity.addEventListener("input", renderCalc);
+  $calcRisk.addEventListener("input", renderCalc);
 
   run();
   setInterval(run, 5 * 60 * 1000);
