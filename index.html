@@ -109,7 +109,7 @@ footer a { color: var(--ink-2); }
 
   <div class="card btcbar">
     <span id="btcpill" class="btcpill">BTC filter: –</span>
-    <p>EMA20 &gt; EMA50 and close &gt; EMA50 on BTC's own 4H chart. This is an <b>active entry gate</b> on both engines (restored 2026-11-02 after a 342-coin backtest: without it, the live universe backtests to +205%/-39% dev/OOS with a -55% drawdown; with it, +226%/+120% with -32% drawdown) -- while it reads red, no new ICHI or GEM signal below can actually open a trade.</p>
+    <p>EMA20 &gt; EMA50 and close &gt; EMA50 on BTC's own 4H chart. Backtests favor this as an active entry gate (342-coin test: +205%/-39% dev/OOS without it vs +226%/+120% with it) and a fresh 10-coin check on 2026-11-17 agreed (OOS avg R +0.344 without vs +0.611 with). <b>As of 2026-11-17 it is informational only</b> -- shown here, but every ICHI/GEM signal below opens a real trade regardless of this reading, by explicit choice, to observe live results directly.</p>
   </div>
 
   <div class="card guide">
@@ -117,7 +117,7 @@ footer a { color: var(--ink-2); }
     <ol>
       <li><b>ICHI (Ichimoku 10/30/60):</b> Tenkan crosses above Kijun with price closing above the cloud. Stop 2.5&times;ATR(14). Exit on a 4H close back below Kijun.</li>
       <li><b>GEM (refined EMA):</b> EMA20 crosses above EMA50, or price reclaims EMA20 while EMA20&gt;EMA50. Stop 2&times;ATR(14). Exit when EMA20 crosses back below EMA50.</li>
-      <li>Both engines only fire while <b>BTC's own 4H trend is up</b> (panel above), require the <b>traded coin's own close above its own EMA200</b> (added 2026-11-17, see tiles below), and skip any coin whose <b>ATR(14) is over 4% of price</b> -- too noisy for the fixed stop distance to mean anything.</li>
+      <li>Both engines require the <b>traded coin's own close above its own EMA200</b> (added 2026-11-17, see tiles below) and skip any coin whose <b>ATR(14) is over 4% of price</b> -- too noisy for the fixed stop distance to mean anything. <b>BTC's own 4H trend</b> (panel above) is tracked and shown but, as of 2026-11-17, no longer blocks a trade either way.</li>
       <li>Position sizing: ICHI risks 0.5% of paper equity per trade, GEM risks 0.25%; max 5 open positions per engine; after 8 straight losses in an engine, it trades at half risk until its next win.</li>
     </ol>
     <p class="note">Paper trading only. This page shows the same signal logic the bot runs on <a href="https://github.com/ravianaf/trend-bot">GitHub</a>, computed live in your browser -- it is not a buy/sell recommendation by itself.</p>
@@ -281,7 +281,9 @@ footer a { color: var(--ink-2); }
     var t = n - 1, pt = n - 2;
     var cloudTop = Math.max(senkouA[t], senkouB[t]);
     var ownBtcOk = e20[t] > e50[t] && c[t] > e50[t];
-    var gateOk = btcOk == null ? ownBtcOk : btcOk;   // BTC's own row gates itself
+    // 2026-11-17 (user's call): BTC filter is informational only now -- shown via the pill above,
+    // no longer required for sigICHI/sigGEM below. Kept here in case it's needed again.
+    var gateOk = true;
     var atrPct = atr[t] / c[t] * 100;
     var atrOk = atrPct <= MAX_ATR_PCT;
     var ownTrendOk = c[t] > e200[t];   // 2026-11-17: own-coin EMA200 confirmation, see guide below
