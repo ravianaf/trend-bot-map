@@ -98,7 +98,7 @@ footer a { color: var(--ink-2); }
 <div class="wrap">
   <div>
     <h1>Trend Bot</h1>
-    <p class="sub">Live Ichimoku (ICHI) + refined-EMA (GEM) signal status, top-200 Bitget spot coins by 24h volume (RWA/tokenized-stock products and stablecoins excluded). Computed in your browser from live 4H candles -- current whenever this page is open. Both engines require BTC's own 4H trend to be up (EMA20&gt;EMA50 and close&gt;EMA50) to signal, and skip any coin whose ATR(14) is over 4% of price (too volatile for the fixed-ATR stop) -- see the guide below for why.</p>
+    <p class="sub">Live Ichimoku (ICHI) + refined-EMA (GEM) signal status, top-200 Bitget spot coins by 24h volume (RWA/tokenized-stock products and stablecoins excluded). Computed in your browser from live 4H candles -- current whenever this page is open. Both engines require BTC's own 4H trend to be up (EMA20&gt;EMA50 and close&gt;EMA50), the coin's own close above its own EMA200, and an ATR(14) under 4% of price -- see the guide below for why.</p>
   </div>
 
   <div class="livebar">
@@ -117,7 +117,7 @@ footer a { color: var(--ink-2); }
     <ol>
       <li><b>ICHI (Ichimoku 10/30/60):</b> Tenkan crosses above Kijun with price closing above the cloud. Stop 2.5&times;ATR(14). Exit on a 4H close back below Kijun.</li>
       <li><b>GEM (refined EMA):</b> EMA20 crosses above EMA50, or price reclaims EMA20 while EMA20&gt;EMA50. Stop 2&times;ATR(14). Exit when EMA20 crosses back below EMA50.</li>
-      <li>Both engines only fire while <b>BTC's own 4H trend is up</b> (panel above), and skip any coin whose <b>ATR(14) is over 4% of price</b> -- too noisy for the fixed stop distance to mean anything.</li>
+      <li>Both engines only fire while <b>BTC's own 4H trend is up</b> (panel above), require the <b>traded coin's own close above its own EMA200</b> (added 2026-11-17, see tiles below), and skip any coin whose <b>ATR(14) is over 4% of price</b> -- too noisy for the fixed stop distance to mean anything.</li>
       <li>Position sizing: ICHI risks 0.5% of paper equity per trade, GEM risks 0.25%; max 5 open positions per engine; after 8 straight losses in an engine, it trades at half risk until its next win.</li>
     </ol>
     <p class="note">Paper trading only. This page shows the same signal logic the bot runs on <a href="https://github.com/ravianaf/trend-bot">GitHub</a>, computed live in your browser -- it is not a buy/sell recommendation by itself.</p>
@@ -130,6 +130,8 @@ footer a { color: var(--ink-2); }
       <div class="tile"><div class="k">Out-of-sample (2024-04 → 2026-10)</div><div class="v up">+120%</div><div class="e">+134% with the ATR cap added too</div></div>
       <div class="tile"><div class="k">Max drawdown</div><div class="v down">-24%</div><div class="e">with both filters; -55% without the BTC filter</div></div>
       <div class="tile"><div class="k">Live, pre-fix (BTC filter off)</div><div class="v down">49 / 53</div><div class="e">trades opened with BTC red, -24.5R combined</div></div>
+      <div class="tile"><div class="k">+ own-coin EMA200 (OOS avg R)</div><div class="v up">+0.61→+0.78</div><div class="e">10-coin backtest, ~20% fewer trades, same total R</div></div>
+      <div class="tile"><div class="k">Current BTC downtrend</div><div class="v down">11+ days</div><div class="e">87% of past red stretches since 2020 were shorter</div></div>
     </div>
     <p class="note">From the bot's own joint-portfolio backtests (see <a href="https://github.com/ravianaf/trend-bot">repo</a> for scripts). A backtest is not a guarantee of future results.</p>
   </div>
@@ -267,7 +269,7 @@ footer a { color: var(--ink-2); }
     var n = candles.length;
     if (n < 260) return null;
     var c = candles.map(function (x) { return x.c; }), h = candles.map(function (x) { return x.h; }), l = candles.map(function (x) { return x.l; });
-    var e20 = ema(c, 20), e50 = ema(c, 50), atr = atr14(h, l, c);
+    var e20 = ema(c, 20), e50 = ema(c, 50), e200 = ema(c, 200), atr = atr14(h, l, c);
     var ten = rollMax(h, 10).map(function (v, i) { return (v + rollMin(l, 10)[i]) / 2; });
     var kij = rollMax(h, 30).map(function (v, i) { return (v + rollMin(l, 30)[i]) / 2; });
     var kij60 = rollMax(h, 60).map(function (v, i) { return (v + rollMin(l, 60)[i]) / 2; });
@@ -282,15 +284,16 @@ footer a { color: var(--ink-2); }
     var gateOk = btcOk == null ? ownBtcOk : btcOk;   // BTC's own row gates itself
     var atrPct = atr[t] / c[t] * 100;
     var atrOk = atrPct <= MAX_ATR_PCT;
+    var ownTrendOk = c[t] > e200[t];   // 2026-11-17: own-coin EMA200 confirmation, see guide below
     var rawICHI = ten[t] > kij[t] && ten[pt] <= kij[pt] && c[t] > cloudTop;
     var e20gt50 = e20[t] > e50[t];
     var cross = e20[t] > e50[t] && e20[pt] <= e50[pt];
     var pull = e20[t] > e50[t] && c[t] > e20[t] && c[pt] <= e20[pt];
     var rawGEM = cross || pull;
     return {
-      close: c[t], atr: atr[t], atrPct: atrPct, atrOk: atrOk,
+      close: c[t], atr: atr[t], atrPct: atrPct, atrOk: atrOk, ownTrendOk: ownTrendOk,
       e20gt50: e20gt50, aboveKijun: c[t] > kij[t],
-      sigICHI: rawICHI && gateOk && atrOk, sigGEM: rawGEM && gateOk && atrOk,
+      sigICHI: rawICHI && gateOk && atrOk && ownTrendOk, sigGEM: rawGEM && gateOk && atrOk && ownTrendOk,
       btcOk: ownBtcOk, vol: 0
     };
   }
